@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *
+ * Example of opening an X509 Certificate and reading some of the properties
  *
  * Creating the self signed certificate for testing purposes :-
  * <p>
