@@ -54,7 +54,7 @@ public class CertificateUtils {
 
             // Borrowed getDisplayNameFromCertificate() from https://www.programcreek.com/java-api-examples/?code=bcmapp%2Fbcm-android%2Fbcm-android-master%2Fthirdpart%2Fbitcoin%2Fsrc%2Fmain%2Fjava%2Forg%2Fbitcoinj%2Fcrypto%2FX509Utils.java#
             //
-            System.out.println(getDisplayNameFromCertificate(certificate, false));
+            System.out.println(getDisplayNameFromCertificate(certificate, true));
 
             // Some of methods on the certificate return Collections which need to be iterated through
             // An example of this is in  parseHostNames()
@@ -71,9 +71,8 @@ public class CertificateUtils {
      * Borrowed from https://stackoverflow.com/questions/30993879/retrieve-subject-alternative-names-of-x-509-certificate-in-java
      *
      * @param cert
-     * @return
      */
-    public static String[] parseHostNames(X509Certificate cert) {
+    public static void parseHostNames(X509Certificate cert) {
         List<String> hostNameList = new ArrayList<>();
         try {
             Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
@@ -99,12 +98,12 @@ public class CertificateUtils {
             System.err.println("Can't parse hostNames from this cert.");
             e.printStackTrace();
         }
-        return hostNameList.toArray(new String[hostNameList.size()]);
+       // hostNameList.toArray(new String[hostNameList.size()]);
     }
 
     /**
      * @param certificate
-     * @param withLocation
+     * @param withLocation contains org location country?
      * @return
      * @throws CertificateParsingException
      */
