@@ -22,12 +22,16 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
+ *
+ *
+ * Creating the self signed certificate for testing purposes :-
+ * <p>
  * with extensions - no CSR file required
  * openssl req -x509 -newkey rsa:4096 -keyout myken.pem -out kencert.pem -days 365
+ * <p>
  * <p>
  * no exentsions
  * openssl req -new -key my.key -sha256  -out MYSCR.csr
@@ -40,12 +44,21 @@ public class CertificateUtils {
         System.out.println("Certificate");
         X509Certificate certificate = null;
         try {
+            // Get the X509 certificate file a PEM
             certificate = getFileCertificate("C:\\Users\\ken_d\\Downloads\\Certificates\\src\\main\\resources\\kencert.pem");
+
+            // This prints out all of the available information that can be got at through the certificate.getxxx() methods
+
+
             System.out.println(certificate.toString());
 
+            // Borrowed getDisplayNameFromCertificate() from https://www.programcreek.com/java-api-examples/?code=bcmapp%2Fbcm-android%2Fbcm-android-master%2Fthirdpart%2Fbitcoin%2Fsrc%2Fmain%2Fjava%2Forg%2Fbitcoinj%2Fcrypto%2FX509Utils.java#
+            //
             System.out.println(getDisplayNameFromCertificate(certificate, false));
 
-            String[] hostnames = parseHostNames(certificate);
+            // Some of methods on the certificate return Collections which need to be iterated through
+            // An example of this is in  parseHostNames()
+            parseHostNames(certificate);
 
 
         } catch (Exception e) {
@@ -54,10 +67,17 @@ public class CertificateUtils {
 
     }
 
+    /**
+     * Borrowed from https://stackoverflow.com/questions/30993879/retrieve-subject-alternative-names-of-x-509-certificate-in-java
+     *
+     * @param cert
+     * @return
+     */
     public static String[] parseHostNames(X509Certificate cert) {
         List<String> hostNameList = new ArrayList<>();
         try {
             Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
+
             if (altNames != null) {
                 for (List<?> altName : altNames) {
                     if (altName.size() < 2) continue;
@@ -73,6 +93,7 @@ public class CertificateUtils {
                     }
                 }
             }
+
             System.out.println("Parsed hostNames: " + String.join(", ", hostNameList));
         } catch (CertificateParsingException e) {
             System.err.println("Can't parse hostNames from this cert.");
@@ -81,6 +102,12 @@ public class CertificateUtils {
         return hostNameList.toArray(new String[hostNameList.size()]);
     }
 
+    /**
+     * @param certificate
+     * @param withLocation
+     * @return
+     * @throws CertificateParsingException
+     */
     public static String getDisplayNameFromCertificate(X509Certificate certificate, boolean withLocation) throws CertificateParsingException {
         X500Name name = new X500Name(certificate.getSubjectX500Principal().getName());
         String commonName = null, org = null, location = null, country = null;
@@ -115,6 +142,15 @@ public class CertificateUtils {
         }
     }
 
+    /**
+     * @param keyFile
+     * @return
+     * @throws IOException
+     * @throws KeyStoreException
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     * @throws CertificateException
+     */
     public static X509Certificate getFileCertificate(String keyFile) throws IOException, KeyStoreException, NoSuchProviderException, NoSuchAlgorithmException, CertificateException {
         FileInputStream fis = null;
         ByteArrayInputStream bais = null;
