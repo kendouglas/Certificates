@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
@@ -46,18 +47,17 @@ public class CertificateUtils {
         System.out.println("Certificate");
         X509Certificate certificate = null;
         String subjectaltnamestring;
-
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         try {
             // Get the X509 certificate file a PEM
-            certificate = getFileCertificate("C:\\Users\\ken_d\\Downloads\\Certificates\\src\\main\\resources\\kencert.pem");
-            System.out.println(certificate.toString());
-
+            certificate = getFileCertificate("C:\\Users\\ken_d\\Downloads\\Certificates\\src\\main\\resources\\test.pem");
+            //System.out.println(certificate.toString());
+CertificateInfo.setCertificate(certificate);
             /**
              * SubjectAlternativeName [
              *   Other-Name: Unrecognized ObjectIdentifier: 1.3.6.1.5.5.7.8.4
              */
             // This prints out all of the available information that can be got at through the certificate.getxxx() methods
-            System.out.println(CertificateInfo.getSubjectAsShortText(certificate));
             System.out.println(CertificateInfo.getSubjectAlternativeNames(certificate));
 
 

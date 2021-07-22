@@ -115,7 +115,15 @@ public class CertificateInfo {
     private static DateFormat completedateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private static DateFormat simpledateFormat   = new SimpleDateFormat("MM/dd/yyyy");
 
-    private X509Certificate certificate;
+    public static X509Certificate getCertificate() {
+        return certificate;
+    }
+
+    public static void setCertificate(X509Certificate thiscertificate) {
+        certificate = thiscertificate;
+    }
+
+    private static X509Certificate certificate;
     private X509Principal subjectdnfieldextractor, issuerdnfieldextractor;
     private String subjectaltnamestring;
     private String subjectdirattrstring;
