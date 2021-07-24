@@ -529,6 +529,8 @@ public class CertificateInfo {
            // log.error("Error parsing SubjectAltName in certificate: " + certificate + "\r\nerror:" + e.getLocalizedMessage(),e);
             e.printStackTrace();
         }
+
+
         return identities;
     }
 

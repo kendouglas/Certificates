@@ -5,8 +5,6 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERUTF8String;
-import org.bouncycastle.asn1.x509.GeneralName;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -52,13 +50,13 @@ public class CertificateUtils {
             // Get the X509 certificate file a PEM
             certificate = getFileCertificate("C:\\Users\\ken_d\\Downloads\\Certificates\\src\\main\\resources\\test.pem");
             //System.out.println(certificate.toString());
-CertificateInfo.setCertificate(certificate);
+
             /**
              * SubjectAlternativeName [
              *   Other-Name: Unrecognized ObjectIdentifier: 1.3.6.1.5.5.7.8.4
              */
             // This prints out all of the available information that can be got at through the certificate.getxxx() methods
-            System.out.println(CertificateInfo.getSubjectAlternativeNames(certificate));
+            System.out.println(getSubjectAlternativeNames(certificate));
 
 
             // Borrowed getDisplayNameFromCertificate() from https://www.programcreek.com/java-api-examples/?code=bcmapp%2Fbcm-android%2Fbcm-android-master%2Fthirdpart%2Fbitcoin%2Fsrc%2Fmain%2Fjava%2Forg%2Fbitcoinj%2Fcrypto%2FX509Utils.java#
@@ -81,6 +79,15 @@ CertificateInfo.setCertificate(certificate);
 
     }
 
+    /**
+     * getSubjectAlternativeNames
+     * simply returns a list of Strings containing the alternative names used
+     * Returns the ObjectIdentifier ID
+     * but this can be changed to return what you want to see when asserting against the certificate
+     *
+     * @param certificate
+     * @return
+     */
     public static List<String> getSubjectAlternativeNames(X509Certificate certificate) {
         List<String> identities = new ArrayList<String>();
         try {
@@ -97,10 +104,10 @@ CertificateInfo.setCertificate(certificate);
                         // Value is encoded using ASN.1 so decode it to get the server's identity
                         ASN1InputStream decoder = new ASN1InputStream((byte[]) item.toArray()[1]);
                         DEREncodable encoded = decoder.readObject();
-                        encoded = ((DERSequence) encoded).getObjectAt(1);
-                        //encoded = ((DERTaggedObject) encoded).getObject();
+                        // Position 0 is the ID
 
-                        String identity = ((DERUTF8String) encoded).getString();
+                        encoded = ((DERSequence) encoded).getObjectAt(0);
+                        String identity = encoded.getDERObject().toString();
 
                         identities.add(identity);
                     } catch (Exception e) {
@@ -115,59 +122,6 @@ CertificateInfo.setCertificate(certificate);
         return identities;
     }
 
-
-    public static void printHostNames(List<String> alternames) {
-
-        alternames.forEach(s -> System.out.println(s));
-    }
-
-    /**
-     * Borrowed from https://stackoverflow.com/questions/30993879/retrieve-subject-alternative-names-of-x-509-certificate-in-java
-     *
-     * @param cert
-     */
-    public static List<String> parseHostNames(X509Certificate cert) {
-        List<String> hostNameList = new ArrayList<>();
-        try {
-            Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-
-            if (altNames != null) {
-                for (List<?> altName : altNames) {
-                    if (altName.size() < 2) {
-                        continue;
-                    }
-
-                    Integer name = (Integer) altName.get(0);
-                    switch (name) {
-                        case GeneralName.otherName:
-
-                            Object data = altName.get(1);
-                            if (data instanceof byte[]) {
-                                StringBuilder sb = new StringBuilder();
-                                byte[] altNameBytes = (byte[]) data;
-                                int altNamesLen = altNameBytes.length;
-                                for (int i = 0; i < altNamesLen; i++) {
-                                    sb.append(altNameBytes[i]);
-                                    if (i < altNamesLen - 1) {
-                                        sb.append(".");
-                                    }
-                                }
-
-                                hostNameList.add(sb.toString());
-                            }
-
-                            break;
-                        default:
-                    }
-                }
-            }
-
-        } catch (CertificateParsingException e) {
-            System.err.println("Can't parse hostNames from this cert.");
-            e.printStackTrace();
-        }
-        return hostNameList;
-    }
 
 
     /**
@@ -203,39 +157,6 @@ CertificateInfo.setCertificate(certificate);
         }
     }
 
-    public static String getSubjectAltName(X509Certificate certificate) {
-        String subjectaltnamestring = null;
-        try {
-            if (certificate.getSubjectAlternativeNames() != null) {
-                subjectaltnamestring = "";
-
-                String separator = "";
-
-                Iterator iter = certificate.getSubjectAlternativeNames().iterator();
-
-                while (iter.hasNext()) {
-                    List next = (List) iter.next();
-                    int OID = ((Integer) next.get(0)).intValue();
-
-                    switch (OID) {
-                        case 0:
-                            Object obj = next.get(1);
-                            if (obj != null) {
-                                subjectaltnamestring += separator + "OtherName=" + obj;
-                                separator = ", ";
-                            }
-                            break;
-
-                    }
-
-                }
-            }
-        } catch (CertificateParsingException e) {
-            subjectaltnamestring = e.getMessage();
-        }
-
-        return subjectaltnamestring;
-    }
 
     public static void log(String msg) {
         System.out.println(msg);
